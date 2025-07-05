@@ -1,4 +1,4 @@
-# roombook
+# room-booking-system
 
 Meeting room booking API. Handles room reservations with basic conflict detection.
 
@@ -7,7 +7,7 @@ Meeting room booking API. Handles room reservations with basic conflict detectio
 Requires Java 17 and Docker.
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ./gradlew bootRun
 ```
 
