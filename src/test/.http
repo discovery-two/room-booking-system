@@ -1,0 +1,99 @@
+# Room Management
+### Get all rooms
+GET http://localhost:8081/room
+
+### Get specific room by ID
+GET http://localhost:8081/room/1
+
+### Create a new room
+POST http://localhost:8081/room
+Content-Type: application/json
+
+{
+  "name": "Conference Room A"
+}
+
+### Create another room
+POST http://localhost:8081/room
+Content-Type: application/json
+
+{
+  "name": "Meeting Room 101"
+}
+
+### Create duplicate room (should fail)
+POST http://localhost:8081/room
+Content-Type: application/json
+
+{
+  "name": "Conference Room A"
+}
+
+### Delete a room (replace with actual room ID)
+DELETE http://localhost:8081/room/52
+
+# Booking Management
+### Get all bookings
+GET http://localhost:8081/booking
+
+### Get specific booking by ID
+GET http://localhost:8081/booking/1
+
+### Create a booking (replace room ID with actual ID from room creation)
+POST http://localhost:8081/booking
+Content-Type: application/json
+
+{
+  "room": {
+    "id": 2
+  },
+  "startTime": "2025-07-06T10:00:00",
+  "endTime": "2025-07-06T11:00:00",
+  "reservedBy": "John Doe"
+}
+
+### Create a conflicting booking (should fail)
+POST http://localhost:8081/booking
+Content-Type: application/json
+
+{
+  "room": {
+    "id": 1
+  },
+  "startTime": "2025-07-06T10:30:00",
+  "endTime": "2025-07-06T11:30:00",
+  "reservedBy": "Jane Smith"
+}
+
+### Create a non-conflicting booking
+POST http://localhost:8081/booking
+Content-Type: application/json
+
+{
+  "room": {
+    "id": 1
+  },
+  "startTime": "2025-07-06T14:00:00",
+  "endTime": "2025-07-06T15:00:00",
+  "reservedBy": "Bob Wilson"
+}
+
+### Delete a booking (replace with actual booking ID)
+DELETE http://localhost:8081/booking/1
+
+# Room Availability Check
+### Check room availability (replace room ID and adjust times)
+GET http://localhost:8081/room/1/availability?startTime=2025-07-06T09:00:00&endTime=2025-07-06T10:00:00
+
+### Check room availability for conflicting time
+GET http://localhost:8081/room/1/availability?startTime=2025-07-06T10:30:00&endTime=2025-07-06T11:30:00
+
+# Test Edge Cases
+### Try to get non-existent room (should return 404)
+GET http://localhost:8081/room/999
+
+### Try to get non-existent booking (should return 404)
+GET http://localhost:8081/booking/999
+
+### Try to delete non-existent booking
+DELETE http://localhost:8081/booking/999
