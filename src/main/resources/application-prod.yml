@@ -1,0 +1,24 @@
+server:
+    error:
+        include-stacktrace: never
+        include-message: never
+        include-binding-errors: never
+
+spring:
+    jpa:
+        show-sql: false
+        hibernate:
+            ddl-auto: validate
+
+logging:
+    pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info
+    endpoint:
+        health:
+            show-details: never
