@@ -1,0 +1,16 @@
+services:
+  pg:
+    image: postgres:17
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: testdb
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
