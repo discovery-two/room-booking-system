@@ -1,16 +1,16 @@
-FROM amazoncorretto:17 AS builder
+FROM amazoncorretto:17-alpine AS builder
 WORKDIR /app
 
 COPY gradle/ gradle/
 COPY build.gradle settings.gradle gradlew ./
-RUN ./gradlew dependencies --no-daemon
-
 COPY src/ src/
+
 RUN ./gradlew bootJar --no-daemon
 
-FROM amazoncorretto:17
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
+EXPOSE 8080
 
 COPY --from=builder /app/build/libs/*.jar app.jar
-EXPOSE 8080
-CMD [ "java", "-Dspring.profiles.active=prod", "-jar", "app.jar" ]
+ENV SPRING_PROFILES_ACTIVE=""
+ENTRYPOINT ["sh", "-c", "java -jar app.jar"]
