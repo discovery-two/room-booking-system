@@ -1,13 +1,13 @@
 server:
-    port: 8081
+    port: 8080
 
 spring:
     application:
         name: roombook
     datasource:
-        url: jdbc:postgresql://localhost:5432/testdb
-        username: testuser
-        password: test
+        url: ${DATABASE_URL}
+        username: ${DATABASE_USERNAME}
+        password: ${DATABASE_PASSWORD}
         driver-class-name: org.postgresql.Driver
     jpa:
         hibernate:
