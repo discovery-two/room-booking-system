@@ -30,10 +30,10 @@ data "aws_ecr_lifecycle_policy_document" "expire_policy" {
     }
 
     selection {
-      tag_status      = "tagged"
-      tag_prefix_list = ["dev"]
-      count_type      = "imageCountMoreThan"
-      count_number    = 3
+      tag_status       = "tagged"
+      tag_pattern_list = ["dev*"]
+      count_type       = "imageCountMoreThan"
+      count_number     = 3
     }
   }
 
@@ -46,10 +46,10 @@ data "aws_ecr_lifecycle_policy_document" "expire_policy" {
     }
 
     selection {
-      tag_status      = "tagged"
-      tag_prefix_list = ["prod"]
-      count_type      = "imageCountMoreThan"
-      count_number    = 2
+      tag_status       = "tagged"
+      tag_pattern_list = ["prod*"]
+      count_type       = "imageCountMoreThan"
+      count_number     = 2
     }
   }
 
@@ -74,4 +74,12 @@ resource "aws_ecr_lifecycle_policy" "ecr-lifecycle-policy" {
   repository = aws_ecr_repository.ecr-repo.name
 
   policy = data.aws_ecr_lifecycle_policy_document.expire_policy.json
+}
+
+resource "aws_ecs_cluster" "ecs-cluster" {
+  name = "${var.proj_name}-ecs-cluster"
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
 }
