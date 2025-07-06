@@ -4,10 +4,11 @@ on:
   push:
   pull_request:
     branches:
-      - main
+      - master
 
 env:
   AWS_REGION: us-east-1
+  ENV_TYPE: ${{ github.ref == 'refs/heads/master' && 'prod' || 'dev' }}
 
 permissions:
   id-token: write   # This is required for requesting the JWT
@@ -44,13 +45,22 @@ jobs:
         docker push ${ECR_REGISTRY}/${ECR_REPOSITORY}:${ENV_TYPE}_${COMMIT_HASH}
         echo "image=${ECR_REGISTRY}/${ECR_REPOSITORY}:${ENV_TYPE}_${COMMIT_HASH}" >> $GITHUB_OUTPUT
 
-    # - name: Fill in the new image ID in the Amazon ECS task definition
-    #   id: task-def
-    #   uses: aws-actions/amazon-ecs-render-task-definition@v1
-    #   with:
-    #     task-definition: ${{ env.ECS_TASK_DEFINITION }}
-    #     container-name: ${{ env.CONTAINER_NAME }}
-    #     image: ${{ steps.build-image.outputs.image }}
+    - name: Replace placeholders in task definition
+      run: |
+        sed -i 's/EXECUTION_ROLE_ARN_PLACEHOLDER/${{ secrets.ECS_EXECUTION_ROLE_ARN }}/g' .github/workflows/task-definition.json
+        sed -i 's/CONTAINER_NAME_PLACEHOLDER/roombook-app-${{ env.ENV_TYPE }}/g' .github/workflows/task-definition.json
+
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ".github/workflows/task-definition.json"
+        container-name: roombook-app-${{ env.ENV_TYPE }}
+        image: ${{ steps.build-image.outputs.image }}
+        environment-variables: |
+          DATABASE_URL=test1
+          DATABASE_USERNAME=test2
+          DATABASE_PASSWORD=test3
 
     # - name: Deploy Amazon ECS task definition
     #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1

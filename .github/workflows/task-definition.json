@@ -1,0 +1,50 @@
+{
+  "family": "roombook-task",
+  "taskRoleArn": "",
+  "executionRoleArn": "EXECUTION_ROLE_ARN_PLACEHOLDER",
+  "networkMode": "awsvpc",
+  "containerDefinitions": [
+    {
+      "name": "CONTAINER_NAME_PLACEHOLDER",
+      "image": "PLACEHOLDER",
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mytest-roombook-test",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      },
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "PLACEHOLDER"
+        },
+        {
+          "name": "DATABASE_USERNAME",
+          "valueFrom": "PLACEHOLDER"
+        },
+        {
+          "name": "DATABASE_PASSWORD",
+          "valueFrom": "PLACEHOLDER"
+        }
+      ]
+    }
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "enableFaultInjection": true,
+  "requiresCompatibilities": [
+    "FARGATE"
+  ]
+}
