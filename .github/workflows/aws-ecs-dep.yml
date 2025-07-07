@@ -47,8 +47,18 @@ jobs:
 
     - name: Replace placeholders in task definition
       run: |
-        sed -i 's/EXECUTION_ROLE_ARN_PLACEHOLDER/${{ secrets.ECS_EXECUTION_ROLE_ARN }}/g' .github/workflows/task-definition.json
+        sed -i 's|EXECUTION_ROLE_ARN_PLACEHOLDER|${{ secrets.AWS_ECS_EXECUTION_ROLE_ARN }}|g' .github/workflows/task-definition.json
         sed -i 's/CONTAINER_NAME_PLACEHOLDER/roombook-app-${{ env.ENV_TYPE }}/g' .github/workflows/task-definition.json
+        sed -i 's/ENVPLACEHOLDER/${{ env.ENV_TYPE }}/g' .github/workflows/task-definition.json
+
+    # - name: Fetch RDS related secrets
+    #   uses: aws-actions/aws-secretsmanager-get-secrets@v2
+    #   with:
+    #     secret-ids: |
+    #       secretId1
+    #       ENV_VAR_NAME, secretId2
+    #     name-transformation: (Optional) uppercase|lowercase|none
+    #     parse-json-secrets: (Optional) true|false
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
@@ -62,10 +72,13 @@ jobs:
           DATABASE_USERNAME=test2
           DATABASE_PASSWORD=test3
 
-    # - name: Deploy Amazon ECS task definition
-    #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-    #   with:
-    #     task-definition: ${{ steps.task-def.outputs.task-definition }}
-    #     service: ${{ env.ECS_SERVICE }}
-    #     cluster: ${{ env.ECS_CLUSTER }}
-    #     wait-for-service-stability: true
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      env:
+        ECS_CLUSTER: roombook-ecs-cluster
+        ECS_SERVICE: roombook-ecs-serv
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}-${{ env.ENV_TYPE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
