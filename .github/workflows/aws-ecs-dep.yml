@@ -8,7 +8,6 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ENV_TYPE: ${{ github.ref == 'refs/heads/master' && 'prod' || 'dev' }}
 
 permissions:
   id-token: write   # This is required for requesting the JWT
@@ -28,10 +27,13 @@ jobs:
       with:
         role-to-assume: ${{ secrets.AWS_GHACTION_ROLE_ARN }}
         aws-region: ${{ env.AWS_REGION }}
+        mask-aws-account-id: true
 
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
+      with:
+        mask-password: true
 
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
@@ -39,46 +41,6 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: roombook-ecr
         COMMIT_HASH: ${{ github.sha }}
-        ENV_TYPE: ${{ github.ref == 'refs/heads/master' && 'prod' || 'dev' }}
       run: |
-        docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:${ENV_TYPE}_${COMMIT_HASH} .
-        docker push ${ECR_REGISTRY}/${ECR_REPOSITORY}:${ENV_TYPE}_${COMMIT_HASH}
-        echo "image=${ECR_REGISTRY}/${ECR_REPOSITORY}:${ENV_TYPE}_${COMMIT_HASH}" >> $GITHUB_OUTPUT
-
-    - name: Replace placeholders in task definition
-      run: |
-        sed -i 's|EXECUTION_ROLE_ARN_PLACEHOLDER|${{ secrets.AWS_ECS_EXECUTION_ROLE_ARN }}|g' .github/workflows/task-definition.json
-        sed -i 's/CONTAINER_NAME_PLACEHOLDER/roombook-app-${{ env.ENV_TYPE }}/g' .github/workflows/task-definition.json
-        sed -i 's/ENVPLACEHOLDER/${{ env.ENV_TYPE }}/g' .github/workflows/task-definition.json
-
-    # - name: Fetch RDS related secrets
-    #   uses: aws-actions/aws-secretsmanager-get-secrets@v2
-    #   with:
-    #     secret-ids: |
-    #       secretId1
-    #       ENV_VAR_NAME, secretId2
-    #     name-transformation: (Optional) uppercase|lowercase|none
-    #     parse-json-secrets: (Optional) true|false
-
-    - name: Fill in the new image ID in the Amazon ECS task definition
-      id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: ".github/workflows/task-definition.json"
-        container-name: roombook-app-${{ env.ENV_TYPE }}
-        image: ${{ steps.build-image.outputs.image }}
-        environment-variables: |
-          DATABASE_URL=test1
-          DATABASE_USERNAME=test2
-          DATABASE_PASSWORD=test3
-
-    - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-      env:
-        ECS_CLUSTER: roombook-ecs-cluster
-        ECS_SERVICE: roombook-ecs-serv
-      with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: ${{ env.ECS_SERVICE }}-${{ env.ENV_TYPE }}
-        cluster: ${{ env.ECS_CLUSTER }}
-        wait-for-service-stability: true
+        docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:${COMMIT_HASH} -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest .
+        docker push ${ECR_REGISTRY}/${ECR_REPOSITORY} --all-tags
