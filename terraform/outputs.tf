@@ -1,11 +1,39 @@
-output "account_id" {
-  value = data.aws_caller_identity.current.account_id
+output "ecr_repository_url" {
+  value = aws_ecr_repository.ecr-repo.repository_url
 }
 
-output "caller_arn" {
-  value = data.aws_caller_identity.current.arn
+output "ecr_repository_name" {
+  value = aws_ecr_repository.ecr-repo.name
 }
 
-output "caller_user" {
-  value = data.aws_caller_identity.current.user_id
+output "ecs_cluster_name" {
+  value = aws_ecs_cluster.ecs-cluster.name
+}
+
+output "ecs_cluster_arn" {
+  value = aws_ecs_cluster.ecs-cluster.arn
+}
+
+output "ecs_execution_role_arn" {
+  value = aws_iam_role.ecs-execution-role.arn
+}
+
+output "aws_region" {
+  value = var.aws_region
+}
+
+output "project_name" {
+  value = var.proj_name
+}
+
+output "load_balancer_url" {
+  value = "http://${aws_lb.main.dns_name}"
+}
+
+output "database_endpoint" {
+  value = aws_db_instance.postgres.endpoint
+}
+
+output "database_secret_arn" {
+  value = aws_db_instance.postgres.master_user_secret[0].secret_arn
 }
