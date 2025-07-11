@@ -2,8 +2,7 @@ package win.pluvivanto.roombook.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,43 +11,33 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import win.pluvivanto.roombook.domain.Room;
-import win.pluvivanto.roombook.repository.BookingRepository;
-import win.pluvivanto.roombook.repository.RoomRepository;
+import win.pluvivanto.roombook.service.RoomService;
 
 @RestController
 @RequestMapping("/room")
+@RequiredArgsConstructor
 public class RoomController {
-  @Autowired private RoomRepository roomRepository;
-  @Autowired private BookingRepository bookingRepository;
+  private final RoomService roomService;
 
   @GetMapping("")
   public List<Room> listRooms() {
-    return roomRepository.findAll();
+    return roomService.listRooms();
   }
 
   @GetMapping("/{id}")
   public Room getRoom(@PathVariable Long id) {
-    return roomRepository
-        .findById(id)
-        .orElseThrow(
-            () ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Room not found with ID " + id.toString()));
+    return roomService.getRoom(id);
   }
 
   @PostMapping("")
   public Room createRoom(@RequestBody Room room) {
-    if (!roomRepository.findByName(room.getName()).isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Duplicate room name found");
-    }
-    return roomRepository.save(room);
+    return roomService.createRoom(room);
   }
 
   @DeleteMapping("/{id}")
   public void deleteRoom(@PathVariable Long id) {
-    roomRepository.deleteById(id);
+    roomService.deleteRoom(id);
   }
 
   @GetMapping("/{id}/availability")
@@ -56,10 +45,6 @@ public class RoomController {
       @PathVariable Long id,
       @RequestParam LocalDateTime startTime,
       @RequestParam LocalDateTime endTime) {
-    final var room =
-        roomRepository
-            .findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
-    return bookingRepository.findConflictingBookings(room, startTime, endTime).isEmpty();
+    return roomService.getAvailability(id, startTime, endTime);
   }
 }
