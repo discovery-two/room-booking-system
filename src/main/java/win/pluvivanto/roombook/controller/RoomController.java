@@ -1,5 +1,6 @@
 package win.pluvivanto.roombook.controller;
 
+import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import win.pluvivanto.roombook.domain.Room;
+import win.pluvivanto.roombook.dto.RoomCreateRequest;
+import win.pluvivanto.roombook.dto.RoomResponse;
 import win.pluvivanto.roombook.service.RoomService;
 
 @RestController
@@ -21,18 +23,18 @@ public class RoomController {
   private final RoomService roomService;
 
   @GetMapping("")
-  public List<Room> listRooms() {
+  public List<RoomResponse> listRooms() {
     return roomService.listRooms();
   }
 
   @GetMapping("/{id}")
-  public Room getRoom(@PathVariable Long id) {
+  public RoomResponse getRoom(@PathVariable Long id) {
     return roomService.getRoom(id);
   }
 
   @PostMapping("")
-  public Room createRoom(@RequestBody Room room) {
-    return roomService.createRoom(room);
+  public RoomResponse createRoom(@Valid @RequestBody RoomCreateRequest request) {
+    return roomService.createRoom(request);
   }
 
   @DeleteMapping("/{id}")
