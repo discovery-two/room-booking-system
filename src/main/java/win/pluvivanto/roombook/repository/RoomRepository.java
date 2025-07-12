@@ -1,11 +1,10 @@
 package win.pluvivanto.roombook.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import win.pluvivanto.roombook.domain.Room;
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import win.pluvivanto.roombook.domain.Room;
 
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
-    List<Room> findByName(String name);
+  List<Room> findByName(String name);
 }

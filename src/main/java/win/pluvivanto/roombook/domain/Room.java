@@ -13,9 +13,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Room {
-    @Id
-    @GeneratedValue
-    private Long id;
-    @NotBlank
-    private String name;
+  @Id @GeneratedValue private Long id;
+  @NotBlank private String name;
 }
