@@ -55,3 +55,7 @@ spotless {
     formatAnnotations()
   }
 }
+
+// Auto-apply formatting before compilation
+compileJava.dependsOn spotlessApply
+compileTestJava.dependsOn spotlessApply
