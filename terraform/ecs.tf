@@ -15,8 +15,8 @@ resource "aws_ecs_task_definition" "ecs-task-def" {
   family                   = "roombook-dev"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "512"
-  memory                   = "1024"
+  cpu                      = "1024"
+  memory                   = "2048"
   execution_role_arn       = aws_iam_role.ecs-execution-role.arn
 
   container_definitions = jsonencode([{
@@ -54,13 +54,17 @@ resource "aws_ecs_task_definition" "ecs-task-def" {
       }
     }
   }])
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 resource "aws_ecs_service" "ecs-service" {
   name            = "roombook-serv"
   cluster         = aws_ecs_cluster.ecs-cluster.id
-  task_definition = aws_ecs_task_definition.ecs-task-def.arn
-  desired_count   = 1
+  task_definition = "roombook-dev"
+  desired_count   = 2
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -75,5 +79,9 @@ resource "aws_ecs_service" "ecs-service" {
     container_port   = 8080
   }
 
-  depends_on = [aws_lb_listener.main]
+  depends_on = [aws_lb_listener.https]
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
 }
