@@ -11,6 +11,7 @@ import win.pluvivanto.roombook.exception.ErrorMessages;
 import win.pluvivanto.roombook.mapper.BookingMapper;
 import win.pluvivanto.roombook.repository.BookingRepository;
 import win.pluvivanto.roombook.repository.RoomRepository;
+import win.pluvivanto.roombook.util.AuthUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +44,11 @@ public class BookingService {
       throw ErrorMessages.bookingConflict();
     }
 
+    String currentUser = AuthUtil.getCurrentUserEmail();
+
     Booking booking = BookingMapper.toEntity(request, room);
+    booking.setReservedBy(currentUser);
+
     Booking savedBooking = bookingRepository.save(booking);
 
     return BookingMapper.toResponse(savedBooking);

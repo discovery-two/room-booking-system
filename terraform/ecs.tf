@@ -43,6 +43,10 @@ resource "aws_ecs_task_definition" "ecs-task-def" {
       {
         name      = "DATABASE_PASSWORD"
         valueFrom = "${aws_db_instance.postgres.master_user_secret[0].secret_arn}:password::"
+      },
+      {
+        name  = "COGNITO_JWK_SET_URI"
+        value = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.roombook_pool.id}/.well-known/jwks.json"
       }
     ]
     logConfiguration = {

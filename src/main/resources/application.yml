@@ -21,6 +21,11 @@ spring:
             hibernate:
                 dialect: org.hibernate.dialect.PostgreSQLDialect
                 format_sql: true
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    jwk-set-uri: ${COGNITO_JWK_SET_URI}
 
 logging:
     level:
