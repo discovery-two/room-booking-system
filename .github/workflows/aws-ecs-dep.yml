@@ -44,18 +44,26 @@ jobs:
       run: |
         docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:${COMMIT_HASH} -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest .
         docker push ${ECR_REGISTRY}/${ECR_REPOSITORY} --all-tags
+        echo "image=${ECR_REGISTRY}/${ECR_REPOSITORY}:${COMMIT_HASH}" >> $GITHUB_OUTPUT
 
-    - name: Update ECS service
-      env:
-        CLUSTER: roombook-ecs-cluster
-        SERVICE: roombook-serv
+    - name: Download current task definition from AWS
       run: |
-        if aws ecs update-service \
-          --cluster "${{ env.CLUSTER }}" \
-          --service "${{ env.SERVICE }}" \
-          --force-new-deployment >/dev/null 2>&1; then
-          echo "ECS service updated"
-        else
-          echo "ECS service update failed"
-          exit 1
-        fi
+        aws ecs describe-task-definition \
+          --task-definition roombook-dev \
+          --query taskDefinition > task-definition.json
+
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition.json
+        container-name: roombook
+        image: ${{ steps.build-image.outputs.image }}
+
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: roombook-serv
+        cluster: roombook-ecs-cluster
+        wait-for-service-stability: true
