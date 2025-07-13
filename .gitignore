@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 generated*/
 .sonarlint/
+.vscode/
 
 ### STS ###
 .apt_generated
@@ -34,18 +35,3 @@ out/
 /dist/
 /nbdist/
 /.nb-gradle/
-
-### VS Code ###
-.vscode/
-
-### Terraform ###
-terraform/.terraform/
-terraform/.terraform.lock.hcl
-terraform/**/terraform.tfstate
-terraform/**/terraform.tfstate.backup
-terraform/**/*.tfvars
-
-### AWS Credentials ###
-.aws/
-*.pem
-*.key

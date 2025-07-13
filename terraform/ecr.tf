@@ -10,7 +10,7 @@ resource "aws_ecr_repository" "ecr-repo" {
 data "aws_ecr_lifecycle_policy_document" "expire_policy" {
   rule {
     priority    = 1
-    description = "Keep 10 images max"
+    description = "Keep 3 images max"
 
     action {
       type = "expire"
@@ -19,7 +19,7 @@ data "aws_ecr_lifecycle_policy_document" "expire_policy" {
     selection {
       tag_status   = "any"
       count_type   = "imageCountMoreThan"
-      count_number = 10
+      count_number = 3
     }
   }
 }
