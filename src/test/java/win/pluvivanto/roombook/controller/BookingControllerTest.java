@@ -18,17 +18,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
+import win.pluvivanto.roombook.config.TestSecurityConfig;
 import win.pluvivanto.roombook.dto.BookingCreateRequest;
 import win.pluvivanto.roombook.dto.BookingResponse;
 import win.pluvivanto.roombook.dto.RoomResponse;
 import win.pluvivanto.roombook.service.BookingService;
 
 @WebMvcTest(BookingController.class)
+@Import(TestSecurityConfig.class)
 class BookingControllerTest {
 
   @Autowired private MockMvc mockMvc;
