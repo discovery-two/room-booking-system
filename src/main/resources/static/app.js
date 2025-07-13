@@ -38,6 +38,13 @@ class ApiClient {
         this.baseUrl = CONFIG.apiBaseUrl;
     }
 
+    // Get CSRF token from cookie
+    getCsrfToken() {
+        const cookies = document.cookie.split('; ');
+        const csrfCookie = cookies.find(row => row.startsWith('XSRF-TOKEN='));
+        return csrfCookie ? decodeURIComponent(csrfCookie.split('=')[1]) : null;
+    }
+
     async makeRequest(endpoint, options = {}) {
         const url = `${this.baseUrl}${endpoint}`;
 
@@ -47,9 +54,19 @@ class ApiClient {
             }
         };
 
+        // Add JWT token if available
         const token = TokenManager.get();
         if (token) {
             defaultOptions.headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        // Add CSRF token for state-changing requests
+        const method = options.method || 'GET';
+        if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method.toUpperCase())) {
+            const csrfToken = this.getCsrfToken();
+            if (csrfToken) {
+                defaultOptions.headers['X-XSRF-TOKEN'] = csrfToken;
+            }
         }
 
         const finalOptions = {
@@ -421,7 +438,20 @@ async function handleAvailabilitySubmit(event) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+// Initialize CSRF token by making a request to trigger token creation
+async function initializeCsrfToken() {
+    try {
+        // Make a simple GET request to ensure CSRF token cookie is set
+        await fetch('/csrf', {
+            method: 'GET',
+            credentials: 'same-origin'
+        });
+    } catch (error) {
+        console.warn('Failed to initialize CSRF token:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
     if (TokenManager.isValid()) {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
@@ -431,6 +461,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (usernameElement && email) {
             usernameElement.textContent = email;
         }
+
+        // Initialize CSRF token
+        await initializeCsrfToken();
 
         setupEventListeners();
         loadRooms();
