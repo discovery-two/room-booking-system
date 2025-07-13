@@ -37,3 +37,19 @@ output "database_endpoint" {
 output "database_secret_arn" {
   value = aws_db_instance.postgres.master_user_secret[0].secret_arn
 }
+
+output "cognito_user_pool_id" {
+  value = aws_cognito_user_pool.roombook_pool.id
+}
+
+output "cognito_user_pool_arn" {
+  value = aws_cognito_user_pool.roombook_pool.arn
+}
+
+output "cognito_client_id" {
+  value = aws_cognito_user_pool_client.roombook_client.id
+}
+
+output "cognito_jwk_set_uri" {
+  value = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.roombook_pool.id}/.well-known/jwks.json"
+}
