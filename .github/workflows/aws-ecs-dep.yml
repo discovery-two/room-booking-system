@@ -44,3 +44,18 @@ jobs:
       run: |
         docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:${COMMIT_HASH} -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest .
         docker push ${ECR_REGISTRY}/${ECR_REPOSITORY} --all-tags
+
+    - name: Update ECS service
+      env:
+        CLUSTER: roombook-ecs-cluster
+        SERVICE: roombook-serv
+      run: |
+        if aws ecs update-service \
+          --cluster "${{ env.CLUSTER }}" \
+          --service "${{ env.SERVICE }}" \
+          --force-new-deployment >/dev/null 2>&1; then
+          echo "ECS service updated"
+        else
+          echo "ECS service update failed"
+          exit 1
+        fi
