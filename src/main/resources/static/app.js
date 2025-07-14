@@ -394,7 +394,7 @@ async function handleBookingSubmit(event) {
     }
 
     const bookingData = {
-        room: { id: parseInt(roomId) },
+        roomId: parseInt(roomId),
         startTime: startTime,
         endTime: endTime,
         reservedBy: reservedBy
