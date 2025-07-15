@@ -41,7 +41,11 @@ public class SecurityConfig {
                         "/app.js",
                         "/callback.html",
                         "/actuator/health",
-                        "/csrf")
+                        "/csrf",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
