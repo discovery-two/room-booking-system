@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
         integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <style>
-        .hidden { display: none; }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 
@@ -40,13 +42,9 @@
     <script>
         // Process authentication callback
         function processCallback() {
-            console.log('Processing callback...');
-            console.log('Full URL:', window.location.href);
-            
             // Extract token from URL fragment
             const hash = window.location.hash.substring(1);
-            console.log('Hash:', hash);
-            
+
             if (!hash) {
                 showError('No authentication data received');
                 return;
@@ -55,9 +53,6 @@
             const params = new URLSearchParams(hash);
             const accessToken = params.get('access_token');
             const error = params.get('error');
-
-            console.log('Access token found:', !!accessToken);
-            console.log('Error:', error);
 
             if (error) {
                 showError('Authentication error: ' + error);
@@ -69,18 +64,17 @@
                 return;
             }
 
-            // Store token and redirect to main app
-            localStorage.setItem('jwt_token', accessToken);
-            console.log('Token stored, redirecting...');
-
-            // Small delay to show the processing message
-            setTimeout(function() {
-                window.location.href = '/';
-            }, 1000);
+            try {
+                localStorage.setItem('jwt_token', accessToken);
+                setTimeout(function () {
+                    window.location.href = '/';
+                }, 1000);
+            } catch (e) {
+                showError('Failed to store authentication token');
+            }
         }
 
         function showError(message) {
-            console.error('Callback error:', message);
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('errorMessage').textContent = message;
             document.getElementById('error').classList.remove('hidden');

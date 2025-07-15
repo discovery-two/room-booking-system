@@ -14,8 +14,20 @@ const TokenManager = {
         if (!token) return false;
 
         try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            return payload.exp * 1000 > Date.now();
+            // Check if token has JWT structure (3 parts separated by dots)
+            const parts = token.split('.');
+            if (parts.length !== 3) return false;
+
+            const payload = JSON.parse(atob(parts[1]));
+
+            // Check if token has expiration and is not expired
+            if (payload.exp) {
+                return payload.exp * 1000 > Date.now();
+            }
+
+            // If no expiration field, assume token is valid
+            // (Some Cognito tokens might not have exp field)
+            return true;
         } catch (e) {
             return false;
         }
@@ -25,8 +37,17 @@ const TokenManager = {
         if (!token) return null;
 
         try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            return payload.email || payload['cognito:username'] || 'User';
+            const parts = token.split('.');
+            if (parts.length !== 3) return null;
+
+            const payload = JSON.parse(atob(parts[1]));
+
+            // Try different claim names that Cognito might use
+            return payload.email ||
+                payload['cognito:username'] ||
+                payload.username ||
+                payload.sub ||
+                'User';
         } catch (e) {
             return null;
         }
@@ -97,7 +118,6 @@ class ApiClient {
                 return await response.text();
             }
         } catch (error) {
-            console.error('API request failed:', error);
             throw error;
         }
     }
@@ -371,7 +391,7 @@ async function handleBookingSubmit(event) {
     }
 
     const bookingData = {
-        room: { id: parseInt(roomId) },
+        roomId: parseInt(roomId),
         startTime: startTime,
         endTime: endTime,
         reservedBy: reservedBy
