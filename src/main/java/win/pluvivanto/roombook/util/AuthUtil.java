@@ -6,6 +6,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 public class AuthUtil {
 
+  private AuthUtil() {
+    throw new IllegalStateException("Utility class");
+  }
+
   /**
    * Get the current authenticated user's email from JWT token
    *

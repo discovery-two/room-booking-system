@@ -1,12 +1,15 @@
 package win.pluvivanto.roombook.mapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import win.pluvivanto.roombook.domain.Room;
 import win.pluvivanto.roombook.dto.RoomCreateRequest;
 import win.pluvivanto.roombook.dto.RoomResponse;
 
 public class RoomMapper {
+
+  private RoomMapper() {
+    throw new IllegalStateException("Utility class");
+  }
 
   public static RoomResponse toResponse(Room room) {
     if (room == null) {
@@ -31,6 +34,6 @@ public class RoomMapper {
   }
 
   public static List<RoomResponse> toResponseList(List<Room> rooms) {
-    return rooms.stream().map(RoomMapper::toResponse).collect(Collectors.toList());
+    return rooms.stream().map(RoomMapper::toResponse).toList();
   }
 }

@@ -1,13 +1,16 @@
 package win.pluvivanto.roombook.mapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import win.pluvivanto.roombook.domain.Booking;
 import win.pluvivanto.roombook.domain.Room;
 import win.pluvivanto.roombook.dto.BookingCreateRequest;
 import win.pluvivanto.roombook.dto.BookingResponse;
 
 public class BookingMapper {
+
+  private BookingMapper() {
+    throw new IllegalStateException("Utility class");
+  }
 
   public static BookingResponse toResponse(Booking booking) {
     if (booking == null) {
@@ -38,6 +41,6 @@ public class BookingMapper {
   }
 
   public static List<BookingResponse> toResponseList(List<Booking> bookings) {
-    return bookings.stream().map(BookingMapper::toResponse).collect(Collectors.toList());
+    return bookings.stream().map(BookingMapper::toResponse).toList();
   }
 }
