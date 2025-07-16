@@ -11,7 +11,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -22,14 +23,20 @@ public class SecurityConfig {
   private String jwkSetUri;
 
   @Bean
-  public JwtDecoder jwtDecoder() {
+  JwtDecoder jwtDecoder() {
     return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
   }
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http.csrf(
-            csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+  CsrfTokenRepository csrfTokenRepository() {
+    HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+    repository.setHeaderName("X-CSRF-TOKEN");
+    return repository;
+  }
+
+  @Bean
+  SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    return http.csrf(csrf -> csrf.csrfTokenRepository(csrfTokenRepository()))
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())))
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
