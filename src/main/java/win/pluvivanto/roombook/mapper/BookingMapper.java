@@ -9,6 +9,10 @@ import win.pluvivanto.roombook.dto.BookingResponse;
 
 public class BookingMapper {
 
+  private BookingMapper() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static BookingResponse toResponse(Booking booking) {
     if (booking == null) {
       return null;

@@ -8,6 +8,10 @@ import win.pluvivanto.roombook.dto.RoomResponse;
 
 public class RoomMapper {
 
+  private RoomMapper() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static RoomResponse toResponse(Room room) {
     if (room == null) {
       return null;
